@@ -8,17 +8,35 @@ import '../file_writer.dart';
 import '../scaffold/module_scaffolder.dart';
 import '../scaffold/project_scaffolder.dart';
 import '../scaffold/scaffold_plan.dart';
+import '../xcode/cocoapods_installer.dart';
 import '../xcode/xcode_project_editor.dart';
+import '../xcode/xcodegen_project_generator.dart';
 
 final class SwiftGetCommandRunner extends CommandRunner<int> {
   SwiftGetCommandRunner({
     StringSink? output,
     FileWriter writer = const FileWriter(),
     XcodeProjectEditor xcodeProjectEditor = const XcodeProjectEditor(),
-  })  : _output = output ?? stdout,
-        super('swift-get', 'Scaffold Swift UIKit iOS apps and modules.') {
-    addCommand(CreateCommand(output: _output, writer: writer, xcodeProjectEditor: xcodeProjectEditor));
-    addCommand(GenerateCommand(output: _output, writer: writer, xcodeProjectEditor: xcodeProjectEditor));
+    XcodeGenProjectGenerator xcodeGenProjectGenerator =
+        const ProcessXcodeGenProjectGenerator(),
+    CocoaPodsInstaller cocoaPodsInstaller = const ProcessCocoaPodsInstaller(),
+  }) : _output = output ?? stdout,
+       super('swift-get', 'Scaffold Swift UIKit iOS apps and modules.') {
+    addCommand(
+      CreateCommand(
+        output: _output,
+        writer: writer,
+        xcodeGenProjectGenerator: xcodeGenProjectGenerator,
+        cocoaPodsInstaller: cocoaPodsInstaller,
+      ),
+    );
+    addCommand(
+      GenerateCommand(
+        output: _output,
+        writer: writer,
+        xcodeProjectEditor: xcodeProjectEditor,
+      ),
+    );
   }
 
   final StringSink _output;
@@ -37,10 +55,12 @@ final class CreateCommand extends Command<int> {
   CreateCommand({
     required StringSink output,
     required FileWriter writer,
-    required XcodeProjectEditor xcodeProjectEditor,
-  })  : _output = output,
-        _writer = writer,
-        _xcodeProjectEditor = xcodeProjectEditor {
+    required XcodeGenProjectGenerator xcodeGenProjectGenerator,
+    required CocoaPodsInstaller cocoaPodsInstaller,
+  }) : _output = output,
+       _writer = writer,
+       _xcodeGenProjectGenerator = xcodeGenProjectGenerator,
+       _cocoaPodsInstaller = cocoaPodsInstaller {
     argParser
       ..addOption('bundle-id', mandatory: true)
       ..addOption('org', defaultsTo: 'Generated')
@@ -51,7 +71,8 @@ final class CreateCommand extends Command<int> {
 
   final StringSink _output;
   final FileWriter _writer;
-  final XcodeProjectEditor _xcodeProjectEditor;
+  final XcodeGenProjectGenerator _xcodeGenProjectGenerator;
+  final CocoaPodsInstaller _cocoaPodsInstaller;
 
   @override
   String get name => 'create';
@@ -77,15 +98,17 @@ final class CreateCommand extends Command<int> {
     );
 
     await _writePlan(plan, action: 'create');
-    final projectRoot = p.join(destination, '$appName.xcodeproj');
-    final edits = await _xcodeProjectEditor.apply(
-      projectRoot: projectRoot,
-      edits: plan.projectEdits,
+    final xcodeGenResult = await _xcodeGenProjectGenerator.generate(
+      projectDirectory: destination,
+      specPath: p.join(destination, 'project.yml'),
       dryRun: argResults!['dry-run'] as bool,
     );
-    for (final edit in edits) {
-      _output.writeln(edit);
-    }
+    _output.writeln(xcodeGenResult.message);
+    final cocoaPodsResult = await _cocoaPodsInstaller.install(
+      projectDirectory: destination,
+      dryRun: argResults!['dry-run'] as bool,
+    );
+    _output.writeln(cocoaPodsResult.message);
     return 0;
   }
 
@@ -110,10 +133,18 @@ final class GenerateCommand extends Command<int> {
     required XcodeProjectEditor xcodeProjectEditor,
   }) {
     addSubcommand(
-      GenerateModuleCommand(output: output, writer: writer, xcodeProjectEditor: xcodeProjectEditor),
+      GenerateModuleCommand(
+        output: output,
+        writer: writer,
+        xcodeProjectEditor: xcodeProjectEditor,
+      ),
     );
     addSubcommand(
-      GeneratePageCommand(output: output, writer: writer, xcodeProjectEditor: xcodeProjectEditor),
+      GeneratePageCommand(
+        output: output,
+        writer: writer,
+        xcodeProjectEditor: xcodeProjectEditor,
+      ),
     );
   }
 
@@ -129,9 +160,9 @@ final class GenerateModuleCommand extends Command<int> {
     required StringSink output,
     required FileWriter writer,
     required XcodeProjectEditor xcodeProjectEditor,
-  })  : _output = output,
-        _writer = writer,
-        _xcodeProjectEditor = xcodeProjectEditor {
+  }) : _output = output,
+       _writer = writer,
+       _xcodeProjectEditor = xcodeProjectEditor {
     argParser
       ..addOption('project', defaultsTo: Directory.current.path)
       ..addFlag('force', negatable: false)
@@ -197,9 +228,9 @@ final class GeneratePageCommand extends Command<int> {
     required StringSink output,
     required FileWriter writer,
     required XcodeProjectEditor xcodeProjectEditor,
-  })  : _output = output,
-        _writer = writer,
-        _xcodeProjectEditor = xcodeProjectEditor {
+  }) : _output = output,
+       _writer = writer,
+       _xcodeProjectEditor = xcodeProjectEditor {
     argParser
       ..addOption('project', defaultsTo: Directory.current.path)
       ..addOption('module')
@@ -257,7 +288,8 @@ final class GeneratePageCommand extends Command<int> {
   }
 }
 
-String _capitalize(String value) => value.substring(0, 1).toUpperCase() + value.substring(1);
+String _capitalize(String value) =>
+    value.substring(0, 1).toUpperCase() + value.substring(1);
 
 String _findXcodeProjectRoot(String projectPath) {
   final direct = Directory(projectPath);

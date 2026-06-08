@@ -26,11 +26,11 @@ void main() {
 
     final edits = await const XcodeProjectEditor().apply(
       projectRoot: project.path,
-      edits: const ['Add SnapKit Swift Package reference'],
+      edits: const ['Install SnapKit with CocoaPods'],
       dryRun: true,
     );
 
-    expect(edits, contains('Xcode project: Add SnapKit Swift Package reference'));
+    expect(edits, contains('Xcode project: Install SnapKit with CocoaPods'));
     expect(project.listSync().where((entity) => entity.path.endsWith('.bak')), isEmpty);
   });
 }

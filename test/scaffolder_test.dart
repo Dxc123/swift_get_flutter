@@ -16,12 +16,64 @@ void main() {
         ),
       );
 
-      expect(plan.files.map((file) => file.relativePath), contains('DemoApp/App/AppDelegate.swift'));
-      expect(plan.files.map((file) => file.relativePath), contains('DemoApp/App/SceneDelegate.swift'));
-      expect(plan.files.map((file) => file.relativePath), contains('DemoApp/App/AppCoordinator.swift'));
-      expect(plan.files.map((file) => file.relativePath), contains('DemoApp/Modules/Home/HomeViewController.swift'));
-      expect(plan.files.any((file) => file.contents.contains('import SnapKit')), isTrue);
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('DemoApp/App/AppDelegate.swift'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('DemoApp/App/SceneDelegate.swift'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('DemoApp/App/AppCoordinator.swift'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('DemoApp/Modules/Home/HomeViewController.swift'),
+      );
+      expect(
+        plan.files.any((file) => file.contents.contains('import SnapKit')),
+        isTrue,
+      );
     });
+
+    test(
+      'plans CocoaPods and XcodeGen files instead of a handwritten pbxproj',
+      () {
+        final plan = const ProjectScaffolder().plan(
+          ProjectTemplateContext(
+            appName: 'DemoApp',
+            bundleId: 'com.example.demo',
+            organizationName: 'Example',
+            destination: '/tmp/DemoApp',
+          ),
+        );
+
+        final projectSpec = plan.files
+            .singleWhere((file) => file.relativePath == 'project.yml')
+            .contents;
+        final podfile = plan.files
+            .singleWhere((file) => file.relativePath == 'Podfile')
+            .contents;
+
+        expect(
+          plan.files.map((file) => file.relativePath),
+          isNot(contains('DemoApp.xcodeproj/project.pbxproj')),
+        );
+        expect(projectSpec, contains('name: DemoApp'));
+        expect(projectSpec, contains('type: application'));
+        expect(projectSpec, contains('platform: iOS'));
+        expect(
+          projectSpec,
+          contains('PRODUCT_BUNDLE_IDENTIFIER: com.example.demo'),
+        );
+        expect(projectSpec, isNot(contains('packages:')));
+        expect(projectSpec, isNot(contains('package: SnapKit')));
+        expect(podfile, contains("target 'DemoApp' do"));
+        expect(podfile, contains("pod 'SnapKit'"));
+      },
+    );
   });
 
   group('ModuleScaffolder', () {
@@ -34,11 +86,26 @@ void main() {
         ),
       );
 
-      expect(plan.files.map((file) => file.relativePath), contains('Login/LoginViewController.swift'));
-      expect(plan.files.map((file) => file.relativePath), contains('Login/LoginViewModel.swift'));
-      expect(plan.files.map((file) => file.relativePath), contains('Login/LoginView.swift'));
-      expect(plan.files.map((file) => file.relativePath), contains('Login/LoginCoordinator.swift'));
-      expect(plan.files.map((file) => file.relativePath), contains('Login/LoginService.swift'));
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('Login/LoginViewController.swift'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('Login/LoginViewModel.swift'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('Login/LoginView.swift'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('Login/LoginCoordinator.swift'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('Login/LoginService.swift'),
+      );
     });
 
     test('plans page files without service', () {
@@ -50,8 +117,14 @@ void main() {
         ),
       );
 
-      expect(plan.files.map((file) => file.relativePath), contains('Profile/ProfileViewController.swift'));
-      expect(plan.files.map((file) => file.relativePath), isNot(contains('Profile/ProfileService.swift')));
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('Profile/ProfileViewController.swift'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        isNot(contains('Profile/ProfileService.swift')),
+      );
     });
   });
 

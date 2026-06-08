@@ -15,13 +15,15 @@
 
 - Dart SDK `^3.11.0`
 - Xcode，用于打开和构建生成后的 iOS 工程
+- XcodeGen，用于生成真实 `.xcodeproj`
+- CocoaPods，用于安装 SnapKit 并生成 `.xcworkspace`
 
 生成的 Swift 项目基线：
 
 - UIKit
 - MVVM
 - Coordinator
-- SnapKit
+- SnapKit via CocoaPods
 - iOS 15+
 
 ## 安装与运行
@@ -84,10 +86,17 @@ DemoApp/
       Info.plist
   DemoAppTests/
     DemoAppTests.swift
+  Podfile
+  Podfile.lock
+  Pods/
   DemoApp.xcodeproj/
     project.pbxproj
+  DemoApp.xcworkspace/
+  project.yml
   README.md
 ```
+
+创建完成后请打开 `DemoApp.xcworkspace`，不要直接打开 `DemoApp.xcodeproj`。
 
 ### 生成功能模块
 
@@ -211,9 +220,9 @@ dart run bin/swift_get.dart --help
 
 ## 当前实现边界
 
-当前版本会生成确定性的最小 `.xcodeproj/project.pbxproj`，并通过 `XcodeProjectEditor` 输出或记录目标、测试目标和 SnapKit Swift Package 的编辑意图。完整的 Xcode target membership、Swift Package 引用和真实工程对象变更仍属于后续完善方向。
+`create` 命令会生成 `project.yml` 和 `Podfile`，随后调用 XcodeGen 生成真实 `.xcodeproj`，再调用 `pod install` 安装 SnapKit 并生成 `.xcworkspace`。生成项目后请使用 Xcode 打开 `.xcworkspace`。
 
-因此，生成项目后如果需要立即在 Xcode 中完整构建，可能还需要根据实际工程状态手动补齐 target 文件归属和 Swift Package 配置。
+`generate module` 和 `generate page` 目前负责写入 Swift 文件，并通过 `XcodeProjectEditor` 记录工程编辑意图；如果需要把新增文件自动同步进 XcodeGen/CocoaPods 工程配置，仍属于后续完善方向。
 
 ## 许可证
 
