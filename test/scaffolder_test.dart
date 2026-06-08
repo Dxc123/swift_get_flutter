@@ -41,6 +41,30 @@ void main() {
         contains('DemoApp/Modules/Profile/ProfileViewController.swift'),
       );
       expect(
+        plan.files.map((file) => file.relativePath),
+        contains('DemoApp/Info.plist'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('DemoApp/Assets.xcassets/Contents.json'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('DemoApp/Assets.xcassets/AppIcon.appiconset/Contents.json'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('DemoApp/Assets.xcassets/AccentColor.colorset/Contents.json'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('DemoApp/Base.lproj/LaunchScreen.storyboard'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
+        contains('DemoApp/Base.lproj/Main.storyboard'),
+      );
+      expect(
         plan.files.any((file) => file.contents.contains('import SnapKit')),
         isTrue,
       );
@@ -146,6 +170,7 @@ void main() {
         );
         expect(projectSpec, isNot(contains('packages:')));
         expect(projectSpec, isNot(contains('package: SnapKit')));
+        expect(projectSpec, contains('path: DemoApp/Info.plist'));
         expect(podfile, contains("target 'DemoApp' do"));
         expect(podfile, contains("pod 'SnapKit'"));
       },

@@ -90,9 +90,28 @@ const _templates = [
     relativePath: '{{appName}}/Modules/Profile/ProfileViewModel.swift',
     contents: _profileViewModel,
   ),
+  PlannedFile(relativePath: '{{appName}}/Info.plist', contents: _infoPlist),
   PlannedFile(
-    relativePath: '{{appName}}/Resources/Info.plist',
-    contents: _infoPlist,
+    relativePath: '{{appName}}/Assets.xcassets/Contents.json',
+    contents: _assetCatalogContents,
+  ),
+  PlannedFile(
+    relativePath:
+        '{{appName}}/Assets.xcassets/AppIcon.appiconset/Contents.json',
+    contents: _appIconContents,
+  ),
+  PlannedFile(
+    relativePath:
+        '{{appName}}/Assets.xcassets/AccentColor.colorset/Contents.json',
+    contents: _accentColorContents,
+  ),
+  PlannedFile(
+    relativePath: '{{appName}}/Base.lproj/LaunchScreen.storyboard',
+    contents: _launchScreenStoryboard,
+  ),
+  PlannedFile(
+    relativePath: '{{appName}}/Base.lproj/Main.storyboard',
+    contents: _mainStoryboard,
   ),
   PlannedFile(
     relativePath: '{{appName}}Tests/{{appName}}Tests.swift',
@@ -322,6 +341,8 @@ const _infoPlist = '''
 <dict>
     <key>CFBundleIdentifier</key>
     <string>{{bundleId}}</string>
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
     <key>UIApplicationSceneManifest</key>
     <dict>
         <key>UISceneConfigurations</key>
@@ -341,6 +362,107 @@ const _infoPlist = '''
     </dict>
 </dict>
 </plist>
+''';
+
+const _assetCatalogContents = '''
+{
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
+''';
+
+const _appIconContents = '''
+{
+  "images" : [
+    {
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "tinted"
+        }
+      ],
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
+''';
+
+const _accentColorContents = '''
+{
+  "colors" : [
+    {
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
+''';
+
+const _launchScreenStoryboard = '''
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+</document>
+''';
+
+const _mainStoryboard = '''
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes/>
+</document>
 ''';
 
 const _tests = '''
@@ -374,10 +496,11 @@ targets:
     sources:
       - {{appName}}
     info:
-      path: {{appName}}/Resources/Info.plist
+      path: {{appName}}/Info.plist
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: {{bundleId}}
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         PRODUCT_NAME: $(TARGET_NAME)
         TARGETED_DEVICE_FAMILY: "1,2"
   {{appName}}Tests:
@@ -437,7 +560,8 @@ Generated by swift-get.
       ProfileViewController.swift
       ProfileView.swift
       ProfileViewModel.swift
-  Resources/
     Info.plist
+    Assets.xcassets/
+    Base.lproj/
 ```
 ''';

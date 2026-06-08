@@ -79,6 +79,35 @@ void main() {
       ).readAsStringSync(),
       contains('import SnapKit'),
     );
+    expect(File('${appRoot.path}/DemoApp/Info.plist').existsSync(), isTrue);
+    expect(
+      File(
+        '${appRoot.path}/DemoApp/Assets.xcassets/Contents.json',
+      ).existsSync(),
+      isTrue,
+    );
+    expect(
+      File(
+        '${appRoot.path}/DemoApp/Assets.xcassets/AppIcon.appiconset/Contents.json',
+      ).existsSync(),
+      isTrue,
+    );
+    expect(
+      File(
+        '${appRoot.path}/DemoApp/Assets.xcassets/AccentColor.colorset/Contents.json',
+      ).existsSync(),
+      isTrue,
+    );
+    expect(
+      File(
+        '${appRoot.path}/DemoApp/Base.lproj/LaunchScreen.storyboard',
+      ).existsSync(),
+      isTrue,
+    );
+    expect(
+      File('${appRoot.path}/DemoApp/Base.lproj/Main.storyboard').existsSync(),
+      isTrue,
+    );
     expect(File('${appRoot.path}/project.yml').existsSync(), isTrue);
     expect(File('${appRoot.path}/Podfile').existsSync(), isTrue);
   });
