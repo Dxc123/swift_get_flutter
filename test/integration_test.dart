@@ -63,6 +63,12 @@ void main() {
     );
     expect(
       File(
+        '${appRoot.path}/DemoApp/Modules/Main/MainViewController.swift',
+      ).existsSync(),
+      isTrue,
+    );
+    expect(
+      File(
         '${appRoot.path}/DemoApp/Modules/Home/HomeView.swift',
       ).readAsStringSync(),
       contains('import SnapKit'),

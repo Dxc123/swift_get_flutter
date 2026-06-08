@@ -30,6 +30,10 @@ void main() {
       );
       expect(
         plan.files.map((file) => file.relativePath),
+        contains('DemoApp/Modules/Main/MainViewController.swift'),
+      );
+      expect(
+        plan.files.map((file) => file.relativePath),
         contains('DemoApp/Modules/Home/HomeViewController.swift'),
       );
       expect(
@@ -42,7 +46,7 @@ void main() {
       );
     });
 
-    test('plans a production tab app with Home and Profile tabs', () {
+    test('plans a main tab container with Home and Profile tabs', () {
       final plan = const ProjectScaffolder().plan(
         ProjectTemplateContext(
           appName: 'DemoApp',
@@ -55,6 +59,13 @@ void main() {
       final appCoordinator = plan.files
           .singleWhere(
             (file) => file.relativePath == 'DemoApp/App/AppCoordinator.swift',
+          )
+          .contents;
+      final mainViewController = plan.files
+          .singleWhere(
+            (file) =>
+                file.relativePath ==
+                'DemoApp/Modules/Main/MainViewController.swift',
           )
           .contents;
       final homeViewModel = plan.files
@@ -70,12 +81,35 @@ void main() {
                 'DemoApp/Modules/Profile/ProfileViewModel.swift',
           )
           .contents;
+      final homeView = plan.files
+          .singleWhere(
+            (file) =>
+                file.relativePath == 'DemoApp/Modules/Home/HomeView.swift',
+          )
+          .contents;
+      final profileView = plan.files
+          .singleWhere(
+            (file) =>
+                file.relativePath ==
+                'DemoApp/Modules/Profile/ProfileView.swift',
+          )
+          .contents;
 
-      expect(appCoordinator, contains('UITabBarController'));
-      expect(appCoordinator, contains('HomeViewController'));
-      expect(appCoordinator, contains('ProfileViewController'));
-      expect(appCoordinator, contains('UIImage(systemName: "house")'));
-      expect(appCoordinator, contains('UIImage(systemName: "person")'));
+      expect(appCoordinator, contains('MainViewController()'));
+      expect(appCoordinator, isNot(contains('UITabBarController')));
+      expect(appCoordinator, isNot(contains('HomeViewController')));
+      expect(appCoordinator, isNot(contains('ProfileViewController')));
+      expect(
+        mainViewController,
+        contains('final class MainViewController: UITabBarController'),
+      );
+      expect(mainViewController, contains('view.backgroundColor = .white'));
+      expect(mainViewController, contains('HomeViewController'));
+      expect(mainViewController, contains('ProfileViewController'));
+      expect(mainViewController, contains('UIImage(systemName: "house")'));
+      expect(mainViewController, contains('UIImage(systemName: "person")'));
+      expect(homeView, contains('backgroundColor = .white'));
+      expect(profileView, contains('backgroundColor = .white'));
       expect(homeViewModel, contains('let title = "首页"'));
       expect(profileViewModel, contains('let title = "我的"'));
     });
