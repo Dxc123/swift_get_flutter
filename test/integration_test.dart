@@ -67,6 +67,12 @@ void main() {
       ).readAsStringSync(),
       contains('import SnapKit'),
     );
+    expect(
+      File(
+        '${appRoot.path}/DemoApp/Modules/Profile/ProfileView.swift',
+      ).readAsStringSync(),
+      contains('import SnapKit'),
+    );
     expect(File('${appRoot.path}/project.yml').existsSync(), isTrue);
     expect(File('${appRoot.path}/Podfile').existsSync(), isTrue);
   });

@@ -75,6 +75,18 @@ const _templates = [
     contents: _homeViewModel,
   ),
   PlannedFile(
+    relativePath: '{{appName}}/Modules/Profile/ProfileViewController.swift',
+    contents: _profileViewController,
+  ),
+  PlannedFile(
+    relativePath: '{{appName}}/Modules/Profile/ProfileView.swift',
+    contents: _profileView,
+  ),
+  PlannedFile(
+    relativePath: '{{appName}}/Modules/Profile/ProfileViewModel.swift',
+    contents: _profileViewModel,
+  ),
+  PlannedFile(
     relativePath: '{{appName}}/Resources/Info.plist',
     contents: _infoPlist,
   ),
@@ -111,10 +123,10 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
         let window = UIWindow(windowScene: windowScene)
-        let navigationController = UINavigationController()
-        let coordinator = AppCoordinator(navigationController: navigationController)
+        let tabBarController = UITabBarController()
+        let coordinator = AppCoordinator(tabBarController: tabBarController)
         coordinator.start()
-        window.rootViewController = navigationController
+        window.rootViewController = tabBarController
         window.makeKeyAndVisible()
         self.window = window
         self.coordinator = coordinator
@@ -130,16 +142,41 @@ protocol Coordinator: AnyObject {
 }
 
 final class AppCoordinator: Coordinator {
-    private let navigationController: UINavigationController
+    private let tabBarController: UITabBarController
 
-    init(navigationController: UINavigationController) {
-        self.navigationController = navigationController
+    init(tabBarController: UITabBarController) {
+        self.tabBarController = tabBarController
     }
 
     func start() {
+        let homeNavigationController = makeHomeNavigationController()
+        let profileNavigationController = makeProfileNavigationController()
+        tabBarController.viewControllers = [
+            homeNavigationController,
+            profileNavigationController
+        ]
+    }
+
+    private func makeHomeNavigationController() -> UINavigationController {
         let viewModel = HomeViewModel()
         let viewController = HomeViewController(viewModel: viewModel)
-        navigationController.setViewControllers([viewController], animated: false)
+        viewController.tabBarItem = UITabBarItem(
+            title: viewModel.title,
+            image: UIImage(systemName: "house"),
+            selectedImage: UIImage(systemName: "house.fill")
+        )
+        return UINavigationController(rootViewController: viewController)
+    }
+
+    private func makeProfileNavigationController() -> UINavigationController {
+        let viewModel = ProfileViewModel()
+        let viewController = ProfileViewController(viewModel: viewModel)
+        viewController.tabBarItem = UITabBarItem(
+            title: viewModel.title,
+            image: UIImage(systemName: "person"),
+            selectedImage: UIImage(systemName: "person.fill")
+        )
+        return UINavigationController(rootViewController: viewController)
     }
 }
 ''';
@@ -182,7 +219,7 @@ final class HomeView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .systemBackground
-        titleLabel.text = "Home"
+        titleLabel.text = "首页"
         titleLabel.font = .preferredFont(forTextStyle: .largeTitle)
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
@@ -201,7 +238,68 @@ const _homeViewModel = '''
 import Foundation
 
 final class HomeViewModel {
-    let title = "Home"
+    let title = "首页"
+}
+''';
+
+const _profileViewController = '''
+import UIKit
+
+final class ProfileViewController: UIViewController {
+    private let rootView = ProfileView()
+    private let viewModel: ProfileViewModel
+
+    init(viewModel: ProfileViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func loadView() {
+        view = rootView
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = viewModel.title
+    }
+}
+''';
+
+const _profileView = '''
+import UIKit
+import SnapKit
+
+final class ProfileView: UIView {
+    private let titleLabel = UILabel()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .systemBackground
+        titleLabel.text = "我的"
+        titleLabel.font = .preferredFont(forTextStyle: .largeTitle)
+        addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+''';
+
+const _profileViewModel = '''
+import Foundation
+
+final class ProfileViewModel {
+    let title = "我的"
 }
 ''';
 
@@ -239,7 +337,11 @@ import XCTest
 
 final class {{appName}}Tests: XCTestCase {
     func testHomeTitle() {
-        XCTAssertEqual(HomeViewModel().title, "Home")
+        XCTAssertEqual(HomeViewModel().title, "首页")
+    }
+
+    func testProfileTitle() {
+        XCTAssertEqual(ProfileViewModel().title, "我的")
     }
 }
 ''';
@@ -298,7 +400,29 @@ const _readme = '''
 Generated by swift-get.
 
 - Architecture: UIKit + MVVM + Coordinator
+- Default tabs: 首页 and 我的, each with its own navigation stack
 - Layout: SnapKit via CocoaPods
 - Deployment target: iOS 15+
 - Open {{appName}}.xcworkspace after creation
+
+## Structure
+
+```text
+{{appName}}/
+  App/
+    AppDelegate.swift
+    SceneDelegate.swift
+    AppCoordinator.swift
+  Modules/
+    Home/
+      HomeViewController.swift
+      HomeView.swift
+      HomeViewModel.swift
+    Profile/
+      ProfileViewController.swift
+      ProfileView.swift
+      ProfileViewModel.swift
+  Resources/
+    Info.plist
+```
 ''';

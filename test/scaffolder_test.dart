@@ -33,9 +33,51 @@ void main() {
         contains('DemoApp/Modules/Home/HomeViewController.swift'),
       );
       expect(
+        plan.files.map((file) => file.relativePath),
+        contains('DemoApp/Modules/Profile/ProfileViewController.swift'),
+      );
+      expect(
         plan.files.any((file) => file.contents.contains('import SnapKit')),
         isTrue,
       );
+    });
+
+    test('plans a production tab app with Home and Profile tabs', () {
+      final plan = const ProjectScaffolder().plan(
+        ProjectTemplateContext(
+          appName: 'DemoApp',
+          bundleId: 'com.example.demo',
+          organizationName: 'Example',
+          destination: '/tmp/DemoApp',
+        ),
+      );
+
+      final appCoordinator = plan.files
+          .singleWhere(
+            (file) => file.relativePath == 'DemoApp/App/AppCoordinator.swift',
+          )
+          .contents;
+      final homeViewModel = plan.files
+          .singleWhere(
+            (file) =>
+                file.relativePath == 'DemoApp/Modules/Home/HomeViewModel.swift',
+          )
+          .contents;
+      final profileViewModel = plan.files
+          .singleWhere(
+            (file) =>
+                file.relativePath ==
+                'DemoApp/Modules/Profile/ProfileViewModel.swift',
+          )
+          .contents;
+
+      expect(appCoordinator, contains('UITabBarController'));
+      expect(appCoordinator, contains('HomeViewController'));
+      expect(appCoordinator, contains('ProfileViewController'));
+      expect(appCoordinator, contains('UIImage(systemName: "house")'));
+      expect(appCoordinator, contains('UIImage(systemName: "person")'));
+      expect(homeViewModel, contains('let title = "首页"'));
+      expect(profileViewModel, contains('let title = "我的"'));
     });
 
     test(
