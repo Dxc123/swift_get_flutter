@@ -1,0 +1,19 @@
+name: swift_get_flutter
+description: Dart CLI that scaffolds Swift UIKit iOS apps and modules.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.11.4
+
+executables:
+  swift-get: swift_get
+
+dependencies:
+  args: ^2.7.0
+  path: ^1.9.1
+  xcodeproj: ^0.2.4+2
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.26.0
